@@ -1,5 +1,5 @@
 ### Preface
-Этот аддон предоставляет возможность создавать навигационные туры для экранов в приложениях
+Этот аддон предоставляет возможность создавать вспомогательные туры для экранов в приложениях
 [CUBA platform](https://www.cuba-platform.com).
 
 ### Dependencies
@@ -18,19 +18,16 @@ Select a version of the add-on which is compatible with the platform version use
 
 | Platform Version| Add-on Version|
 |:----------------|:--------------|
-| 6.9.x           | 1.3.0         |
-| 6.8.x           | 1.2.0         |
-| 6.7.x           | 1.1.0         |
-| 6.6.x           | 1.0.0         |
+| 6.9.x           | 1.0.0         |
+
 
 Add custom application component to your project (change the version part if needed):
 ```
 com.haulmont.addon.tour:tour-global:0.1-SNAPSHOT
 ```
 
-
 ### Description
-Этот аддон содержит набор компонентов, позволяющих создавать навигационные туры по пользовательским экранам. 
+Этот аддон содержит набор компонентов, позволяющих создавать вспомогательные туры по пользовательским экранам. 
 
 Для создания тура необходим компонент, реализующий интерфейс Tour. С помощью метода `addStep` к туру можно привязать
 компоненты, реализующие интерфейс Step. Для взаимодействия между шагами тура с помощью метода `addStepButton` можно
@@ -61,407 +58,310 @@ com.haulmont.addon.tour:tour-global:0.1-SNAPSHOT
 #### Step-by-step guide
 Create a new CUBA project and add the given add-on to it.
 
-![](/sreenshots/1-adding-addon.png "Adding add-on")
+![](screenshots/1-adding-addon.png "Adding add-on")
 
-In the GENERIC UI tab create a new screen using "Blank screen" template.
+In the DATA MODEL tab create a new entity "Product" with two attributes.
 
-We will divide this screen into two panels: the first panel is a palette that contains actions, the second is a dashboard that contains the list of actions.
-First of all, add the next namespace to the XML descriptor of the screen:
-```
-xmlns:dnd="http://schemas.haulmont.com/dnd/0.1/drag-and-drop.xsd"
-```
+![](screenshots/2-create-new-entity.png "Creating a new entity")
 
-and add the following block:
-```xml
-<layout>
-    <hbox id="root"
-          height="100%"
-          width="100%"
-          spacing="true"
-          expand="rootSpacer">
-        <groupBox id="rootPalette"
-                  caption="Todo actions"
-                  height="100%"
-                  width="200px">
-            <dnd:dndVBoxLayout id="palette"
-                               dragMode="CLONE"
-                               height="AUTO"
-                               spacing="true"
-                               width="100%">
-            </dnd:dndVBoxLayout>
-        </groupBox>
-        <groupBox id="rootDashboard"
-                  caption="Todo today"
-                  width="500px"
-                  height="100%">
-            <scrollBox width="100%" height="100%">
-                <dnd:dndVBoxLayout id="dashboard"
-                                   dragMode="CLONE"
-                                   height="AUTO"
-                                   spacing="true"
-                                   width="100%">
-                </dnd:dndVBoxLayout>
-            </scrollBox>
-        </groupBox>
-        <label id="rootSpacer"/>
-    </hbox>
-</layout>
-```
-Component with the "rootPalette" id contains the set of predefined actions.
-These components can be dragged by users. Component with the "dashboard" id contains a todo-list.
+Create entity browser and entity editor screens via Generic UI screen.
 
-Palette and Dashboard have property `dragMode` which indicates that their components can be dragged.  
+Мы добавим кнопку для запуска тура в `ProductBrowse`, а также реализуем запуск туров при открытии экранов.
 
-This is how the screen looks in the running app:
-
-![](/sreenshots/2-xml-without-buttons.png "View of the screen in the running app")
-
-Next, we should add actions that can be dragged by users and added in their list.
-We will use buttons as the components for drag and drop.
-Add a set of buttons to the palette with follow ids: call, chat, meeting, buy.
-
-Your XML descriptor should look like this:
+Для создания кнопки добавьте следующий блок к `buttonsPanel` в product-browse.xml:
 
 ```xml
-<dnd:dndVBoxLayout id="palette"
-                   dragMode="CLONE"
-                   height="AUTO"
-                   spacing="true"
-                   width="100%">
-      <button id="call"
-              caption="Call"
-              height="40px"
-              width="100%"/>
-      <button id="chat"
-              caption="Chat"
-              height="40px"
-              width="100%"/>
-      <button id="meeting"
-              caption="Meeting"
-              height="40px"
-              width="100%"/>
-      <button id="buy"
-              caption="Buy"
-              height="40px"
-              width="100%"/>
-</dnd:dndVBoxLayout>
+<button id="tourButton"
+        caption="Tutorial" 
+        invoke="startTour"/>
 ```
 
-Make sure that the buttons are added and they can be dragged:
+При инициализации страницы `ProductBrowse` мы будем парсить тур из json файла.
 
-![](/sreenshots/3-xml-with-buttons.png "View of the screen with draggable buttons")
+productBrowseTour.json:
+```JSON
+[
+  {
+    "id": "step1",
+    "text": "tour.tutorialStartedText",
+    "title": "tour.tutorialStartedTitle",
+    "width": "400",
+    "textContentMode": "html",
+    "titleContentMode": "html",
+    "cancellable": "true",
+    "buttons": [
+      {
+        "caption": "tour.cancel",
+        "style": "danger",
+        "action": "tour:cancel",
+        "enabled": "true"
+      },
+      {
+        "caption": "tour.next",
+        "style": "friendly",
+        "action": "tour:next",
+        "enabled": "true"
+      }
+    ]
+  },
+  {
+    "id": "step2",
+    "text": "tour.createButtonText",
+    "title": "tour.createButtonTitle",
+    "width": "400",
+    "textContentMode": "html",
+    "titleContentMode": "html",
+    "attachTo": "createBtn",
+    "anchor": "right",
+    "buttons": [
+      {
+        "caption": "tour.back",
+        "style": "primary",
+        "action": "tour:back",
+        "enabled": "true"
+      },
+      {
+        "caption": "tour.next",
+        "style": "friendly",
+        "action": "tour:next",
+        "enabled": "true"
+      }
+    ]
+  },
+  {
+    "id": "step3",
+    "text": "tour.editButtonText",
+    "title": "tour.editButtonTitle",
+    "width": "400",
+    "textContentMode": "html",
+    "titleContentMode": "html",
+    "attachTo": "editBtn",
+    "anchor": "right",
+    "buttons": [
+      {
+        "caption": "tour.back",
+        "style": "primary",
+        "action": "tour:back",
+        "enabled": "true"
+      },
+      {
+        "caption": "tour.next",
+        "style": "friendly",
+        "action": "tour:next",
+        "enabled": "true"
+      }
+    ]
+  },
+  {
+    "id": "step4",
+    "text": "tour.removeButtonText",
+    "title": "tour.removeButtonTitle",
+    "width": "400",
+    "textContentMode": "html",
+    "titleContentMode": "html",
+    "attachTo": "removeBtn",
+    "anchor": "bottom",
+    "buttons": [
+      {
+        "caption": "tour.back",
+        "style": "primary",
+        "action": "tour:back",
+        "enabled": "true"
+      },
+      {
+        "caption": "tour.next",
+        "style": "friendly",
+        "action": "tour:next",
+        "enabled": "true"
+      }
+    ]
+  },
+  {
+    "id": "step5",
+    "text": "tour.filterPanelText",
+    "title": "tour.filterPanelTitle",
+    "width": "400",
+    "textContentMode": "html",
+    "titleContentMode": "html",
+    "attachTo": "filter",
+    "anchor": "bottom",
+    "modal": "true",
+    "buttons": [
+      {
+        "caption": "tour.back",
+        "style": "primary",
+        "action": "tour:back",
+        "enabled": "true"
+      },
+      {
+        "caption": "tour.finish",
+        "style": "friendly",
+        "action": "tour:next",
+        "enabled": "true"
+      }
+    ]
+  }
+]
+```
 
-In the screen controller set `DropHandler` to the dashboard component:
-
+ProductBrowse.java:
 ```Java
 @Inject
-private DDVerticalLayout dashboard;
+protected Resources resources;
 
+protected Tour tour;
+    
 @Override
 public void init(Map<String, Object> params) {
-    dashboard.setDropHandler(new DropHandler() {
-       @Override
-       public void drop(DragAndDropEvent event) {
-
-       }
-
-       @Override
-       public AcceptCriterion getCriterion() {
-           return AcceptCriterion.ACCEPT_ALL;
-       }
-   });
+    super.init(params);
+    
+    createTour();
+}
+    
+protected void createTour() {
+    String file = resources.getResourceAsString("com/company/touraddondemo/web/product/productBrowseTour.json");
+    TourParser tourParser = AppBeans.get(TourParser.class);
+    tour = tourParser.parseTour(file, getMessagesPack(), this);
 }
 ```
 
-The methods `drop()` and `getCriterion()` are invoked every time when the dragged component is dropped to the layout.
-In the `drop()` method we should implement our logic to handle component's drop.  
+Далее напишем метод создания действия для запуска тура. Отключим настройки, задающие запуск тура только при первом 
+переходе на экран.
 
-Method `getCriterion()` allows us to specify the criteria to accept dropping various components to this layout
-(e.g. only Labels and/or Buttons etc.). In this case we accept all components: `AcceptCriterion.ACCEPT_ALL`.
-
-If we now run this app and try to drag a button to the dashboard, we will see that the dropping area is not highlighted.
-This is due to the dashboard property height which is set to AUTO. To expand this layout we should write some CSS in the extension theme of the app.
-To do this, we create a theme extension in Project Properties.
-
-![](/sreenshots/4-theme-extention.png "Create extension theme")  
-
-Add the following code to the `halo-ext.scss`:
-
-```css
-.min-height{
-    min-height:50px;
+```Java
+public void startTour() {
+    TourStartAction tourStartAction = TourStartAction.create(tour);
+    tourStartAction.setSettingsEnabled(false);
+    tourStartAction.actionPerform(this);
 }
 ```
 
-and in the XML descriptor of the screen add `stylename="min-height"` to the dashboard component. Launch the app and check:
+Этот метод будет вызываться при нажатии кнопки `tourButton`. Также добавим вызов этого метода при инициализации экрана.
 
-![](/sreenshots/5-drop-area.png "Drop area")  
+Для `ProductEdit` будем парсить тур из json таким же образом, только укажем путь к файлу productEditTour.json.
+И в методе инициализации создадим действие для запуска тура без отключения дополнительных настроек.
 
-Now we should create some panel to display the added action in the list. For this purpose, create the method that returns Component.
-
-```Java
-public Component createDashboardElement(Component component) {
-
-}
+productEditTour.json:
+```JSON
+[
+  {
+    "id": "step1",
+    "text": "tour.editStartedText",
+    "title": "tour.editStartedTitle",
+    "width": "400",
+    "textContentMode": "html",
+    "titleContentMode": "html",
+    "cancellable": "true",
+    "buttons": [
+      {
+        "caption": "tour.cancel",
+        "style": "danger",
+        "action": "tour:cancel",
+        "enabled": "true"
+      },
+      {
+        "caption": "tour.next",
+        "style": "friendly",
+        "action": "tour:next",
+        "enabled": "true"
+      }
+    ]
+  },
+  {
+    "id": "step2",
+    "text": "tour.fieldGroupText",
+    "title": "tour.fieldGroupTitle",
+    "width": "400",
+    "textContentMode": "html",
+    "titleContentMode": "html",
+    "attachTo": "fieldGroup",
+    "anchor": "right",
+    "buttons": [
+      {
+        "caption": "tour.back",
+        "style": "primary",
+        "action": "tour:back",
+        "enabled": "true"
+      },
+      {
+        "caption": "tour.next",
+        "style": "friendly",
+        "action": "tour:next",
+        "enabled": "true"
+      }
+    ]
+  },
+  {
+    "id": "step3",
+    "text": "tour.windowActionsText",
+    "title": "tour.windowActionsTitle",
+    "width": "400",
+    "textContentMode": "html",
+    "titleContentMode": "html",
+    "attachTo": "windowClose",
+    "anchor": "right",
+    "buttons": [
+      {
+        "caption": "tour.back",
+        "style": "primary",
+        "action": "tour:back",
+        "enabled": "true"
+      },
+      {
+        "caption": "tour.finish",
+        "style": "friendly",
+        "action": "tour:next",
+        "enabled": "true"
+      }
+    ]
+  }
+]
 ```
 
-For the main component added directly to the dashboard we will use `GroupBoxLayout`. Then we will add `HBoxLayout` to the `GroupBoxLayout` and fill it with the components:
-- Label with appropriate serial number;
-- Label with name of action;
-- LookupField;
-- Button to remove from list.
+Для отображения локализованных сообщений необходимо добавить их в messages.properties:
 
-Firstly, create `GroupBoxLayout` and `HBoxLayout`, specify width 100% for both components and add spacing to `HBoxLayout`:
-
-```Java
-GroupBoxLayout groupBox = factory.createComponent(GroupBoxLayout.class);
-groupBox.setWidth("100%");
-
-HBoxLayout layout = factory.createComponent(HBoxLayout.class);
-layout.setWidth("100%");
-layout.setSpacing(true);
+```properties
+tour.createButtonText = <p>This is a <b>create button</b>.</p> <p>Press the button to open an editor screen to \
+  <b>create</b> a new entity.</p>
+tour.editButtonText = <p>This is an <b>edit button</b>.</p> <p>Select an entity and press the button to open an \
+  editor screen to <b>edit</b> the entity.</p>
+tour.removeButtonText = <p>This is a <b>remove button</b>.</p> <p>Select an entity and press the button to remove \
+  the entity.</p>
+tour.filterPanelText = <p>This is a <b>filter panel</b>.</p> <p>You may choose conditions to filter entities.</p>
+tour.fieldGroupText = <p>This is a <b>field group</b> consisting of text fields.</p> \
+  <p>You may fill the fields by your own data.</p>
+tour.windowActionsText = <p>These are window <b>actions</b>.</p> <p>You are able to <b>confirm</b> or <b>decline</b> \
+  changes.</p>
+tour.tutorialStartedText = <p>This tutorial will show you and describe some UI components.</p> \
+  <p>This tour starts every time.</p>
+tour.editStartedText = <p>This is an <b>editor screen</b>.</p> <p>Here you may <b>create</b> or <b>edit</b>\
+   entities.</p> <p>This tour starts only once.</p>
+tour.editStartedTitle = <b>Editor</b> screen
+tour.tutorialStartedTitle = Tutorial has <b>started</b>!
+tour.createButtonTitle = <b>Create button</b>
+tour.editButtonTitle = <b>Edit button</b>
+tour.removeButtonTitle = <b>Remove button</b>
+tour.filterPanelTitle = <b>Filter Panel</b>
+tour.fieldGroupTitle = <b>Field group</b>
+tour.windowActionsTitle = Window <b>actions</b>
+tour.back = Back
+tour.next = Next
+tour.cancel = Cancel
+tour.finish = Finish
 ```
 
-Next, create main components for this panel. No need to set LookupField width as it will be expanded in HBoxLayout:
+Next, we need to create a theme extension in Project Properties.
 
-```Java
-Label countLabel = factory.createComponent(Label.class);
-countLabel.setId("countLabel");
-countLabel.setWidth("30px");
+![](screenshots/3-theme-extention.png "Create extension theme")  
 
-Label titleLabel = factory.createComponent(Label.class);
-titleLabel.setValue(((Button) component).getCaption());
-titleLabel.setWidth("60px");
+Теперь при переходе на экран `ProductBrowse` каждый раз пользователь будет видеть тур. Также у него будет возможность 
+запускать тур нажатием на кнопку с заголовком "Tutorial". При переходе на `ProductEdit` будет запущен тур при первом 
+переходе на экран для каждого пользователя.
 
-LookupField lookupField = factory.createComponent(LookupField.class);
+This is how the ProductBrowse screen looks in the running app:
 
-Button deleteButton = factory.createComponent(Button.class);
-deleteButton.setIcon("font-icon:TIMES");
-```
+![](screenshots/4-run-application-product-browse.png "View of the ProductBrowse screen in the running app")
 
-Create `BaseAction` for the delete button. We'll implement the logic of deletion a bit later:
+This is how the ProductEdit screen looks in the running app:
 
-```Java
-BaseAction action = new BaseAction("remove") {
-    @Override
-    public void actionPerform(Component component) {
-    }
-};
-action.setCaption("");
-deleteButton.setAction(action);
-
-```
-
-It remains to add the created components:
-
-```Java
-layout.add(countLabel);
-layout.add(titleLabel);
-layout.add(lookupField);
-layout.expand(lookupField);
-layout.add(deleteButton);
-groupBox.add(layout);
-```
-
-Now we should handle component's drop to the dashboard. `DragAndDropEvent` event variable contains information about which component is being dragged, its source layout, to which component, to which position etc. To get this information you should use the following classes:
-- LayoutBoundTransferable;
-- DDVerticalLayoutTargetDetails.
-
-In the `drop()` method we get references to the objects `LayoutBoundTransferable` and `DDVerticalLayoutTargetDetails`.
-
-```java
-LayoutBoundTransferable t = (LayoutBoundTransferable) event.getTransferable();
-DDVerticalLayoutTargetDetails details = (DDVerticalLayoutTargetDetails) event.getTargetDetails();
-```
-
-`LayoutBoundTransferable` contains two main methods:
-- getSourceComponent() - return the layout from which transferable component was dragged;
-- getTransferableComponent() - return transferable component;
-
-```Java
-Component sourceLayout = t.getSourceComponent();
-Component tComponent = t.getTransferableComponent();
-```
-
-`DDVerticalLayoutTargetDetails` contains information about layout to drop the component to (receiving layout).
-The main methods are:
-- `getTarget()` - return layout to which drop;
-- `getOverComponent()` - return child component of the target layout, to which drop transferable component;
-- `getDropLocation()` - return drop location (Middle, Top, Bottom);
-- `getOverIndex()` - return index of child component;
-Get references to the layout to drop the transferable component to and `VerticalDropLocation`:
-
-```Java
-DDVerticalLayout targetLayout = (DDVerticalLayout) details.getTarget();
-VerticalDropLocation loc = details.getDropLocation();
-```
-
-Next we should check whether transferable component is null. It is possible if we drag  highlighted html5 text, as it is not a component.
-
-```Java
-if (tComponent == null) {
-    return;
-}
-```
-
-Define the index of component to which we drop (indexTo) and the index of transferable component in the target layout (indexFrom). The last index is necessary if the component is replaced in its layout. If a component is dragged from another layout, indexFrom will be -1.
-
-```Java
-int indexTo = details.getOverIndex();
-int indexFrom = targetLayout.indexOf(tComponent);
-```
-
-Create reference to the object that will be added to the layout and check whether component is dragged from another layout, or it is just a reordering within the source layout;
-
-```Java
-Component componentToAdd;
-if (sourceLayout == targetLayout) {
-
-} else {
-
-}
-```
-
-If this condition is fulfilled, we should assign the componentToAdd reference to the dragged component. Then we should check whether the component has changed its position or not. If the component has not changed its location, then finish method.
-
-```Java
-componentToAdd = tComponent;
-if (indexFrom == indexTo) {
-    return;
-}
-```
-
-If the component has changed its location, we must delete it from its layout. Then check if the index of the receiving component is bigger than the index of the previous location, then we need to reduce it by one. This is because of removing the component from layout.
-
-```Java
-targetLayout.remove(tComponent);
-if (indexTo > indexFrom) {
-    indexTo--;
-}
-```
-
-If the dragged component does not hit any position, indexTo will be -1. Since the component has already been removed from the layout, it must be added to its previous position.
-
-```Java
-if (indexTo == -1) {
-    targetLayout.add(componentToAdd, indexFrom);
-}
-```
-
-In case when component is dragged from another layout, it is necessary to create an appropriate component to display it in the dashboard. If the dragged component does not hit any of the components in the layout, we need to add it to the end of the list of layout components.
-
-```Java
-if (sourceLayout == targetLayout) {
-    // some code
-} else {
-    componentToAdd = createDashboardElement(tComponent);
-    if (indexTo == -1) {
-        targetLayout.add(componentToAdd, targetLayout.getOwnComponents().size());
-    }
-}
-```
-
-Next we should check if the component hits to the child component of layout. If it hits, we check the drop location.
-If location is `MIDDLE` or `BOTTOM`, we must increase indexTo by one to add below a component to which the component was dragged.
-
-```java
-if (indexTo != -1) {
-    if (loc == VerticalDropLocation.MIDDLE || loc == VerticalDropLocation.BOTTOM) {
-        indexTo++;
-    }
-    targetLayout.add(componentToAdd, indexTo);
-}
-```
-
-As a result, the drop method looks like:
-
-```Java
-public void drop(DragAndDropEvent event) {
-    LayoutBoundTransferable t = (LayoutBoundTransferable) event.getTransferable();
-    DDVerticalLayoutTargetDetails details = (DDVerticalLayoutTargetDetails) event.getTargetDetails();
-
-    Component sourceLayout = t.getSourceComponent();
-    DDVerticalLayout targetLayout = (DDVerticalLayout) details.getTarget();
-    Component tComponent = t.getTransferableComponent();
-
-    VerticalDropLocation loc = details.getDropLocation();
-
-    int indexTo = details.getOverIndex();
-    int indexFrom = targetLayout.indexOf(tComponent);
-
-    if (tComponent == null) {
-        return;
-    }
-    Component componentToAdd;
-
-    if (sourceLayout == targetLayout) {
-        componentToAdd = tComponent;
-        if (indexFrom == indexTo) {
-            return;
-        }
-        targetLayout.remove(tComponent);
-        if (indexTo > indexFrom) {
-            indexTo--;
-        }
-        if (indexTo == -1) {
-            targetLayout.add(tComponent, indexFrom);
-        }
-    } else {
-        componentToAdd = createDashboardElement(tComponent);
-        if (indexTo == -1) {
-            targetLayout.add(componentToAdd, targetLayout.getOwnComponents().size());
-        }
-    }
-
-    if (indexTo != -1) {
-        if (loc == VerticalDropLocation.MIDDLE || loc == VerticalDropLocation.BOTTOM) {
-            indexTo++;
-        }
-        targetLayout.add(componentToAdd, indexTo);
-    }
-}
-```
-
-Launch the app and check:
-
-![](/sreenshots/6-check-adding.png "Check adding components")  
-
-Note that serial numbers are not assigned to dashboard components. Create the method to fix it:
-
-```Java
-public void updateDashboardComponents(DDVerticalLayout layout) {
-
-}
-```
-We need to set values to all countLabel. To achieve this, it is necessary to get the list of child dashboard components.
-
-```Java
-List<Component> components = new ArrayList<>(layout.getOwnComponents());
-int count = 0;
-for (Component component : components) {
-     GroupBoxLayout groupBox = (GroupBoxLayout) component;
-     HBoxLayout hBoxLayout = (HBoxLayout) Iterables.get(groupBox.getComponents(), 0);
-     Label label = (Label)  Iterables.get(hBoxLayout.getComponents(), 0);
-     label.setValue(++count);
-}
-```
-
-Now at the end of `drop()` method add the follow invocation:
-
-```Java
-updateDashboardComponents(targetLayout);
-```
-
-It remains to implement the component removing from the dashboard. Add this code to `actionPerfom()` method:
-
-```Java
-public void actionPerform(Component component) {
-    HBoxLayout hBox = (HBoxLayout) component.getParent();
-    GroupBoxLayout groupBox = (GroupBoxLayout) hBox.getParent();
-    DDVerticalLayout ddLayout = (DDVerticalLayout) groupBox.getParent();
-    ddLayout.remove(groupBox);
-    updateDashboardComponents(ddLayout);
-}
-```
-
-Launch the app and check that the serial numbers are updated and the components are removed.
+![](screenshots/5-run-application-product-edit.png "View of the ProductEdit screen in the running app")
