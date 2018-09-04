@@ -1,17 +1,14 @@
 ### Preface
-Этот аддон предоставляет возможность создавать вспомогательные туры для экранов в приложениях
+Этот аддон предоставляет возможность создавать product tour для экранов в приложениях
 [CUBA platform](https://www.cuba-platform.com).
-
-### Dependencies
- - [Vaadin Addon for creating Product Tours](https://github.com/Juchar/product-tour)
 
 ### Main features
 Компоненты, используемые для создания и запуска тура:
-- Tour
-- Step
-- StepButton
-- TourStartAction
-- TourParser
+- **Tour** (A tour consisting of one or multiple steps)
+- **Step** (A single step of a tour)
+- **StepButton** (A button of a step that can be used to provide different actions if clicked)
+- **TourStartAction** (Standard action to start a tour)
+- **TourParser** (Parser of Tour objects)
 
 ### Usage
 Select a version of the add-on which is compatible with the platform version used in your project:
@@ -23,19 +20,20 @@ Select a version of the add-on which is compatible with the platform version use
 
 Add custom application component to your project (change the version part if needed):
 ```
-com.haulmont.addon.tour:tour-global:0.1-SNAPSHOT
+com.haulmont.addon.tour:tour-global:1.0.0   
 ```
 
 ### Description
-Этот аддон содержит набор компонентов, позволяющих создавать вспомогательные туры по пользовательским экранам. 
+Этот аддон содержит набор компонентов, позволяющих создавать product tour по пользовательским экранам. 
 
-Для создания тура необходим компонент, реализующий интерфейс Tour. С помощью метода `addStep` к туру можно привязать
-компоненты, реализующие интерфейс Step. Для взаимодействия между шагами тура с помощью метода `addStepButton` можно
-привязать к шагам кнопки, реализующие интерфейс StepButton. Действия для кнопок можно использовать готовые из
+Создаётся компонент тур. С помощью метода `addStep` к туру можно привязать шаги. Для взаимодействия между шагами тура 
+с помощью метода `addStepButton` можно привязать к шагам кнопки. Действия для кнопок можно использовать готовые из
 `TourActionType` и `StepActionType` или собственные.
 
-Также создать тур можно при помощи `TourParser` из json вызовом метода `parseTour`, который на вход принимает json, 
-messagePack и window to extend.
+Для тура используется интерфейс `Tour`, для шагов - `Step`, для кнопок - `StepButton`.
+
+Также создать тур можно при помощи `TourParser` вызовом метода `parseTour`, который на вход принимает json, 
+messagesPack и window to extend.
 
 Запуск тура осуществляется вызовом действия `TourStartAction`. Задать, будет ли тур запускаться каждый раз при переходе
 на экран или только при первом переходе, можно с помощью метода `setSettingsEnabled`.
@@ -44,7 +42,7 @@ messagePack и window to extend.
 To use this add-on in a CUBA Studio project, in the project properties add add-on like custom application component and
 save settings.
 ```
-com.haulmont.addon.tour:tour-global:0.1-SNAPSHOT
+com.haulmont.addon.tour:tour-global:1.0.0   
 ```
 
 #### Sample task
@@ -68,7 +66,7 @@ Create entity browser and entity editor screens via Generic UI screen.
 
 Мы добавим кнопку для запуска тура в `ProductBrowse`, а также реализуем запуск туров при открытии экранов.
 
-Для создания кнопки добавьте следующий блок к `buttonsPanel` в product-browse.xml:
+Для создания кнопки добавьте следующий компонент к `buttonsPanel` в product-browse.xml:
 
 ```xml
 <button id="tourButton"
@@ -76,7 +74,9 @@ Create entity browser and entity editor screens via Generic UI screen.
         invoke="startTour"/>
 ```
 
-При инициализации страницы `ProductBrowse` мы будем парсить тур из json файла.
+При инициализации страницы `ProductBrowse` мы будем парсить тур из json файла, который лежит в одной папке с экранами.
+В этом json файле описан массив шагов для тура. Для каждого тура описан ряд параметров, а также массив кнопок. 
+Для каждой кнопки описаны её атрибуты и действие, которое вызывается при нажатии.
 
 productBrowseTour.json:
 ```JSON
@@ -209,18 +209,21 @@ ProductBrowse.java:
 @Inject
 protected Resources resources;
 
+@Inject
+protected TourParser tourParser;
+
 protected Tour tour;
-    
+
 @Override
 public void init(Map<String, Object> params) {
     super.init(params);
-    
+
     createTour();
 }
-    
+
 protected void createTour() {
-    String file = resources.getResourceAsString("com/company/touraddondemo/web/product/productBrowseTour.json");
-    TourParser tourParser = AppBeans.get(TourParser.class);
+    String sourceFolder = "com/company/touraddondemo/web/product/";
+    String file = resources.getResourceAsString(sourceFolder + "productBrowseTour.json");
     tour = tourParser.parseTour(file, getMessagesPack(), this);
 }
 ```
@@ -238,104 +241,112 @@ public void startTour() {
 
 Этот метод будет вызываться при нажатии кнопки `tourButton`. Также добавим вызов этого метода при инициализации экрана.
 
-Для `ProductEdit` будем парсить тур из json таким же образом, только укажем путь к файлу productEditTour.json.
-И в методе инициализации создадим действие для запуска тура без отключения дополнительных настроек.
+В `ProductEdit` при инициализации будем вызывать метод `createTour()`, в котором создадим объект тура, добавим к нему 
+шаги, зададим для них параметры и кнопки:
 
-productEditTour.json:
-```JSON
-[
-  {
-    "id": "step1",
-    "text": "tour.editStartedText",
-    "title": "tour.editStartedTitle",
-    "width": "400",
-    "textContentMode": "html",
-    "titleContentMode": "html",
-    "cancellable": "true",
-    "buttons": [
-      {
-        "caption": "tour.cancel",
-        "style": "danger",
-        "action": "tour:cancel",
-        "enabled": "true"
-      },
-      {
-        "caption": "tour.next",
-        "style": "friendly",
-        "action": "tour:next",
-        "enabled": "true"
-      }
-    ]
-  },
-  {
-    "id": "step2",
-    "text": "tour.fieldGroupText",
-    "title": "tour.fieldGroupTitle",
-    "width": "400",
-    "textContentMode": "html",
-    "titleContentMode": "html",
-    "attachTo": "fieldGroup",
-    "anchor": "right",
-    "buttons": [
-      {
-        "caption": "tour.back",
-        "style": "primary",
-        "action": "tour:back",
-        "enabled": "true"
-      },
-      {
-        "caption": "tour.next",
-        "style": "friendly",
-        "action": "tour:next",
-        "enabled": "true"
-      }
-    ]
-  },
-  {
-    "id": "step3",
-    "text": "tour.windowActionsText",
-    "title": "tour.windowActionsTitle",
-    "width": "400",
-    "textContentMode": "html",
-    "titleContentMode": "html",
-    "attachTo": "windowClose",
-    "anchor": "right",
-    "buttons": [
-      {
-        "caption": "tour.back",
-        "style": "primary",
-        "action": "tour:back",
-        "enabled": "true"
-      },
-      {
-        "caption": "tour.finish",
-        "style": "friendly",
-        "action": "tour:next",
-        "enabled": "true"
-      }
-    ]
-  }
-]
+```Java
+protected void createTour() {
+    tour = new WebTour(this);
+
+    Step step = new WebStep("step1");
+    step.setText(getMessage("tour.editStartedText"));
+    step.setTitle(getMessage("tour.editStartedTitle"));
+    step.setWidth("400");
+    step.setTextContentMode(Step.ContentMode.HTML);
+    step.setTitleContentMode(Step.ContentMode.HTML);
+    step.setCancellable(true);
+
+    StepButton stepButton = new WebStepButton(getMessage("tour.cancel"));
+    stepButton.setStyleName("danger");
+    stepButton.setEnabled(true);
+    stepButton.addStepButtonClickListener(TourActionType.CANCEL::execute);
+    step.addButton(stepButton);
+
+    stepButton = new WebStepButton(getMessage("tour.next"));
+    stepButton.setStyleName("friendly");
+    stepButton.setEnabled(true);
+    stepButton.addStepButtonClickListener(TourActionType.NEXT::execute);
+    step.addButton(stepButton);
+
+    tour.addStep(step);
+
+    step = new WebStep("step2");
+    step.setText(getMessage("tour.fieldGroupText"));
+    step.setTitle(getMessage("tour.fieldGroupTitle"));
+    step.setWidth("400");
+    step.setTextContentMode(Step.ContentMode.HTML);
+    step.setTitleContentMode(Step.ContentMode.HTML);
+    step.setAttachedTo(ComponentsHelper.findComponent(getFrame(), "fieldGroup"));
+    step.setAnchor(Step.StepAnchor.RIGHT);
+
+    stepButton = new WebStepButton(getMessage("tour.back"));
+    stepButton.setStyleName("primary");
+    stepButton.setEnabled(true);
+    stepButton.addStepButtonClickListener(TourActionType.BACK::execute);
+    step.addButton(stepButton);
+
+    stepButton = new WebStepButton(getMessage("tour.next"));
+    stepButton.setStyleName("friendly");
+    stepButton.setEnabled(true);
+    stepButton.addStepButtonClickListener(TourActionType.NEXT::execute);
+    step.addButton(stepButton);
+
+    tour.addStep(step);
+
+    step = new WebStep("step3");
+    step.setText(getMessage("tour.windowActionsText"));
+    step.setTitle(getMessage("tour.windowActionsTitle"));
+    step.setWidth("400");
+    step.setTextContentMode(Step.ContentMode.HTML);
+    step.setTitleContentMode(Step.ContentMode.HTML);
+    step.setAttachedTo(ComponentsHelper.findComponent(getFrame(), "windowClose"));
+    step.setAnchor(Step.StepAnchor.RIGHT);
+
+    stepButton = new WebStepButton(getMessage("tour.back"));
+    stepButton.setStyleName("primary");
+    stepButton.setEnabled(true);
+    stepButton.addStepButtonClickListener(TourActionType.BACK::execute);
+    step.addButton(stepButton);
+
+    stepButton = new WebStepButton(getMessage("tour.finish"));
+    stepButton.setStyleName("friendly");
+    stepButton.setEnabled(true);
+    stepButton.addStepButtonClickListener(TourActionType.NEXT::execute);
+    step.addButton(stepButton);
+
+    tour.addStep(step);
+}
 ```
+Также в методе инициализации создадим действие для запуска тура без отключения дополнительных настроек.
 
-Для отображения локализованных сообщений необходимо добавить их в messages.properties:
+Для отображения локализованных сообщений необходимо добавить их в `messages.properties`:
 
 ```properties
-tour.createButtonText = <p>This is a <b>create button</b>.</p> <p>Press the button to open an editor screen to \
-  <b>create</b> a new entity.</p>
-tour.editButtonText = <p>This is an <b>edit button</b>.</p> <p>Select an entity and press the button to open an \
-  editor screen to <b>edit</b> the entity.</p>
-tour.removeButtonText = <p>This is a <b>remove button</b>.</p> <p>Select an entity and press the button to remove \
-  the entity.</p>
-tour.filterPanelText = <p>This is a <b>filter panel</b>.</p> <p>You may choose conditions to filter entities.</p>
-tour.fieldGroupText = <p>This is a <b>field group</b> consisting of text fields.</p> \
+tour.createButtonText = \
+  <p>This is a <b>create button</b>.</p> \
+  <p>Press the button to open an editor screen to <b>create</b> a new entity.</p>
+tour.editButtonText = \
+  <p>This is an <b>edit button</b>.</p> \
+  <p>Select an entity and press the button to open an editor screen to <b>edit</b> the entity.</p>
+tour.removeButtonText = \
+  <p>This is a <b>remove button</b>.</p> \
+  <p>Select an entity and press the button to remove the entity.</p>
+tour.filterPanelText = \
+  <p>This is a <b>filter panel</b>.</p> \
+  <p>You may choose conditions to filter entities.</p>
+tour.fieldGroupText = \
+  <p>This is a <b>field group</b> consisting of text fields.</p> \
   <p>You may fill the fields by your own data.</p>
-tour.windowActionsText = <p>These are window <b>actions</b>.</p> <p>You are able to <b>confirm</b> or <b>decline</b> \
-  changes.</p>
-tour.tutorialStartedText = <p>This tutorial will show you and describe some UI components.</p> \
+tour.windowActionsText = \
+  <p>These are window <b>actions</b>.</p> \
+  <p>You are able to <b>confirm</b> or <b>decline</b> changes.</p>
+tour.tutorialStartedText = \
+  <p>This tutorial will show you and describe some UI components.</p> \
   <p>This tour starts every time.</p>
-tour.editStartedText = <p>This is an <b>editor screen</b>.</p> <p>Here you may <b>create</b> or <b>edit</b>\
-   entities.</p> <p>This tour starts only once.</p>
+tour.editStartedText = \
+  <p>This is an <b>editor screen</b>.</p> \
+  <p>Here you may <b>create</b> or <b>edit</b> entities.</p> \
+  <p>This tour starts only once.</p>
 tour.editStartedTitle = <b>Editor</b> screen
 tour.tutorialStartedTitle = Tutorial has <b>started</b>!
 tour.createButtonTitle = <b>Create button</b>
@@ -350,7 +361,9 @@ tour.cancel = Cancel
 tour.finish = Finish
 ```
 
-Next, we need to create a theme extension in Project Properties.
+Если мы сейчас запустим приложение, то увидим, что наши новые компоненты отображаются некорректно. Классы, необходимые 
+для их корректного отображения, ещё не содержатся в нашем проекте.
+So we need to create a theme extension in Project Properties.
 
 ![](screenshots/3-theme-extention.png "Create extension theme")  
 
