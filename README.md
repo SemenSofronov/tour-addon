@@ -66,7 +66,7 @@ Create entity browser and entity editor screens via Generic UI screen.
 
 Мы добавим кнопку для запуска тура в `ProductBrowse`, а также реализуем запуск туров при открытии экранов.
 
-Для создания кнопки добавьте следующий компонент к `buttonsPanel` в product-browse.xml:
+Для создания кнопки добавьте следующий компонент к `buttonsPanel` в `product-browse.xml`:
 
 ```xml
 <button id="tourButton"
@@ -75,7 +75,7 @@ Create entity browser and entity editor screens via Generic UI screen.
 ```
 
 При инициализации страницы `ProductBrowse` мы будем парсить тур из json файла, который лежит в одной папке с экранами.
-В этом json файле описан массив шагов для тура. Для каждого тура описан ряд параметров, а также массив кнопок. 
+В этом json файле описан массив шагов для тура. Для каждого шага описан ряд параметров, а также массив кнопок. 
 Для каждой кнопки описаны её атрибуты и действие, которое вызывается при нажатии.
 
 productBrowseTour.json:
