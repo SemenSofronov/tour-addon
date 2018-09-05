@@ -322,29 +322,21 @@ protected void createTour() {
 Для отображения локализованных сообщений необходимо добавить их в `messages.properties`:
 
 ```properties
-tour.createButtonText = \
-  <p>This is a <b>create button</b>.</p> \
+tour.createButtonText = <p>This is a <b>create button</b>.</p> \
   <p>Press the button to open an editor screen to <b>create</b> a new entity.</p>
-tour.editButtonText = \
-  <p>This is an <b>edit button</b>.</p> \
+tour.editButtonText = <p>This is an <b>edit button</b>.</p> \
   <p>Select an entity and press the button to open an editor screen to <b>edit</b> the entity.</p>
-tour.removeButtonText = \
-  <p>This is a <b>remove button</b>.</p> \
+tour.removeButtonText = <p>This is a <b>remove button</b>.</p> \
   <p>Select an entity and press the button to remove the entity.</p>
-tour.filterPanelText = \
-  <p>This is a <b>filter panel</b>.</p> \
+tour.filterPanelText = <p>This is a <b>filter panel</b>.</p> \
   <p>You may choose conditions to filter entities.</p>
-tour.fieldGroupText = \
-  <p>This is a <b>field group</b> consisting of text fields.</p> \
+tour.fieldGroupText = <p>This is a <b>field group</b> consisting of text fields.</p> \
   <p>You may fill the fields by your own data.</p>
-tour.windowActionsText = \
-  <p>These are window <b>actions</b>.</p> \
+tour.windowActionsText = <p>These are window <b>actions</b>.</p> \
   <p>You are able to <b>confirm</b> or <b>decline</b> changes.</p>
-tour.tutorialStartedText = \
-  <p>This tutorial will show you and describe some UI components.</p> \
+tour.tutorialStartedText = <p>This tutorial will show you and describe some UI components.</p> \
   <p>This tour starts every time.</p>
-tour.editStartedText = \
-  <p>This is an <b>editor screen</b>.</p> \
+tour.editStartedText = <p>This is an <b>editor screen</b>.</p> \
   <p>Here you may <b>create</b> or <b>edit</b> entities.</p> \
   <p>This tour starts only once.</p>
 tour.editStartedTitle = <b>Editor</b> screen
@@ -354,15 +346,15 @@ tour.editButtonTitle = <b>Edit button</b>
 tour.removeButtonTitle = <b>Remove button</b>
 tour.filterPanelTitle = <b>Filter Panel</b>
 tour.fieldGroupTitle = <b>Field group</b>
-tour.windowActionsTitle = Window <b>actions</b>
+tour.windowActionsTitle = <b>Window actions</b>
 tour.back = Back
 tour.next = Next
 tour.cancel = Cancel
 tour.finish = Finish
 ```
 
-Если мы сейчас запустим приложение, то увидим, что наши новые компоненты отображаются некорректно. Классы, необходимые 
-для их корректного отображения, ещё не содержатся в нашем проекте.
+Если мы сейчас запустим приложение, то увидим, что наши новые компоненты отображаются некорректно. CSS классы, 
+необходимые для их корректного отображения, ещё не содержатся в нашем проекте.
 So we need to create a theme extension in Project Properties.
 
 ![](screenshots/3-theme-extention.png "Create extension theme")  
