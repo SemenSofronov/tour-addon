@@ -366,13 +366,13 @@ This is how the `ProductBrowse` screen looks in the running app:
 
 ![](screenshots/4-run-application-product-browse.png "View of the ProductBrowse screen in the running app")
 
-This is how the `ProductEdit` screen looks in the running app:
-
-![](screenshots/5-run-application-product-edit.png "View of the ProductEdit screen in the running app")
-
 Так выглядит `ProductBrowse` screen с шагом, привязанным к компоненту:
 
 ![](screenshots/6-run-application-product-browse-2.png "View of the ProductBrowse screen in the running app")
+
+This is how the `ProductEdit` screen looks in the running app:
+
+![](screenshots/5-run-application-product-edit.png "View of the ProductEdit screen in the running app")
 
 Так выглядит `ProductEdit` screen с шагом, привязанным к компоненту:
 
