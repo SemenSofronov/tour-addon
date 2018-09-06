@@ -32,7 +32,7 @@ com.haulmont.addon.tour:tour-global:1.0.0
 
 Для тура используется интерфейс `Tour`, для шагов - `Step`, для кнопок - `StepButton`.
 
-Также создать тур можно при помощи `TourParser` вызовом метода `parseTour`, который на вход принимает json, 
+Также создать тур можно при помощи `TourParser` вызовом метода `parseTour`, который на вход принимает JSON, 
 messagesPack и window to extend.
 
 Запуск тура осуществляется вызовом действия `TourStartAction`. Задать, будет ли тур запускаться каждый раз при переходе
@@ -74,11 +74,11 @@ Create entity browser and entity editor screens via Generic UI screen.
         invoke="startTour"/>
 ```
 
-При инициализации страницы `ProductBrowse` мы будем парсить тур из json файла, который лежит в одной папке с экранами.
-В этом json файле описан массив шагов для тура. Для каждого шага описан ряд параметров, а также массив кнопок. 
+При инициализации страницы `ProductBrowse` мы будем парсить тур из JSON файла, который лежит в одной папке с экранами.
+В этом JSON файле описан массив шагов для тура. Для каждого шага описан ряд параметров, а также массив кнопок. 
 Для каждой кнопки описаны её атрибуты и действие, которое вызывается при нажатии.
 
-productBrowseTour.json:
+`productBrowseTour.json`:
 ```JSON
 [
   {
@@ -204,7 +204,7 @@ productBrowseTour.json:
 ]
 ```
 
-ProductBrowse.java:
+`ProductBrowse.java`:
 ```Java
 @Inject
 protected Resources resources;
@@ -363,10 +363,10 @@ So we need to create a theme extension in Project Properties.
 запускать тур нажатием на кнопку с заголовком "Tutorial". При переходе на `ProductEdit` будет запущен тур при первом 
 переходе на экран для каждого пользователя.
 
-This is how the ProductBrowse screen looks in the running app:
+This is how the `ProductBrowse` screen looks in the running app:
 
 ![](screenshots/4-run-application-product-browse.png "View of the ProductBrowse screen in the running app")
 
-This is how the ProductEdit screen looks in the running app:
+This is how the `ProductEdit` screen looks in the running app:
 
 ![](screenshots/5-run-application-product-edit.png "View of the ProductEdit screen in the running app")
