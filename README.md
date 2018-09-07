@@ -1,9 +1,9 @@
 ### Preface
-Этот аддон предоставляет возможность создавать product tour для экранов в приложениях
+This add-on is designed to create **product tour** for screens in the projects based on 
 [CUBA platform](https://www.cuba-platform.com).
 
 ### Main features
-Компоненты, используемые для создания и запуска тура:
+The following components are used to create and tun tours:
 - **Tour** (A tour consisting of one or multiple steps)
 - **Step** (A single step of a tour)
 - **StepButton** (A button of a step that can be used to provide different actions if clicked)
@@ -24,19 +24,14 @@ com.haulmont.addon.tour:tour-global:1.0.0
 ```
 
 ### Description
-Этот аддон позволяет создавать product tour на экранах вашего приложения. Каждый шаг тура может быть привязан к любому 
-компоненту интерфейса, благодаря чему можно показать и описать компоненты пользовательского интерфейса.
+This add-on enables creating a product tour on your application's screens. Each step of the tour can be bound to any UI component, thus helping you to show and describe UI components.
 
-Сам тур состоит из шагов, каждый из которых имеет собственный заголовок, текст, привязку к компоненту и ряд других 
-настроек. Для взаимодействия между шагами используются специальные кнопки `StepButton`. Действия для кнопок можно 
-использовать готовые из`TourActionType` и `StepActionType` или собственные. Для тура используется интерфейс `Tour`, 
-для шагов - `Step`.
+The tour itself consists of steps, each having its own title, value (text), binding to a component, and some other configuration attributes. In order to interact between steps, the special `StepButton` buttons are used. These buttons may have either predefined actions from `TourActionType` and `StepActionType` or their own actions. The `Tour` interface is used for tours, while `Step` is used for steps. 
 
-Также создать тур можно при помощи `TourParser` вызовом метода `parseTour`, который на вход принимает JSON, 
-messagesPack и window to extend.
 
-Запуск тура осуществляется вызовом действия `TourStartAction`. Задать, будет ли тур запускаться каждый раз при переходе
-на экран или только при первом переходе, можно с помощью метода `setSettingsEnabled`.
+A tour can also be created with the help of the `parseTour()` method of `TourParser`, which receives a JSON, messagesPack, and window to extend.
+
+To start a tour, call the `TourStartAction`. The `setSettingsEnabled()` method allows you to define whether the tour should start each time on the screen opening or only once at the first time.
 
 ### Quick start
 To use this add-on in a CUBA Studio project, in the project properties add add-on like custom application component and
@@ -46,12 +41,12 @@ com.haulmont.addon.tour:tour-global:1.0.0
 ```
 
 #### Sample task
-Давайте попробуем создать небольшое приложение, содержащее два экрана с турами.
+As a hands-on example, let's create a small demo app containing two screens with tours.
 
-В этом приложении мы реализуем следующие возможности:
-- создание туров на экранах приложения
-- задание разных опций для шагов тура
-- задание параметра запуска туров
+In this app, we will:
+- create tours on application screens,
+- define different options for the tours steps,
+- define the parameters of the tours start.
 
 #### Step-by-step guide
 Create a new CUBA project and add the given add-on to it.
@@ -64,9 +59,9 @@ In the DATA MODEL tab create a new entity "Product" with two attributes.
 
 Create entity browser and entity editor screens via Generic UI screen.
 
-Мы добавим кнопку для запуска тура в `ProductBrowse`, а также реализуем запуск туров при открытии экранов.
+Let's add a button which will start a tour in `ProductBrowse`, as well as implement the tours start on the screen opening.
 
-Для создания кнопки добавьте следующий компонент к `buttonsPanel` в `product-browse.xml`:
+To create the button, add the component below to the `buttonsPanel` component in `product-browse.xml`:
 
 ```xml
 <button id="tourButton"
@@ -74,9 +69,9 @@ Create entity browser and entity editor screens via Generic UI screen.
         invoke="startTour"/>
 ```
 
-При инициализации страницы `ProductBrowse` мы будем парсить тур из JSON файла, который лежит в одной папке с экранами.
-В этом JSON файле описан массив шагов для тура. Для каждого шага описан ряд параметров, а также массив кнопок. 
-Для каждой кнопки описаны её атрибуты и действие, которое вызывается при нажатии.
+On the `ProductBrowse` screen initialization, we will parse the tour from the JSON file which is located in the same directory with screens.
+This JSON file describes the list of steps for the tour. Each step is provided with several parameters and an array of buttons. 
+For each button we describe its attributes and the action performed on the button's click.
 
 `productBrowseTour.json`:
 ```JSON
@@ -228,8 +223,7 @@ protected void createTour() {
 }
 ```
 
-Далее напишем метод создания действия для запуска тура. Отключим настройки, задающие запуск тура только при первом 
-переходе на экран.
+Next, let's create a method to create an action which will start the tour. We'll disable the setting of starting a tour only one on the first screen opening.
 
 ```Java
 public void startTour() {
@@ -239,10 +233,9 @@ public void startTour() {
 }
 ```
 
-Этот метод будет вызываться при нажатии кнопки `tourButton`. Также добавим вызов этого метода при инициализации экрана.
+This method will be invoked on the `tourButton` click. Additionally, let's call this method at the screen initialization. 
 
-В `ProductEdit` при инициализации будем вызывать метод `createTour()`, в котором создадим объект тура, добавим к нему 
-шаги, зададим для них параметры и кнопки:
+At the `ProductEdit` initialization we will call the `createTour()` method where we create a tour instance, add the steps, their parameters, and buttons:
 
 ```Java
 protected void createTour() {
@@ -317,9 +310,9 @@ protected void createTour() {
     tour.addStep(step);
 }
 ```
-Также в методе инициализации создадим действие для запуска тура без отключения дополнительных настроек.
+Also, in the `init()` method we create an action that will start a tour without disabling additional settings.
 
-Для отображения локализованных сообщений необходимо добавить их в `messages.properties`:
+In order to display localized messages, put them in `messages.properties`:
 
 ```properties
 tour.createButtonText = <p>This is a <b>create button</b>.</p> \
@@ -353,20 +346,17 @@ tour.cancel = Cancel
 tour.finish = Finish
 ```
 
-Для корректного отображения новых компонентов необходимы CSS классы, находящиеся в теме аддона. Чтобы они стали 
-доступны и для этого проекта, we need to create a theme extension in Project Properties.
+For the correct display of the new components, we will need CSS classes that come with the add-on theme. To make them available for this project, we need to create a theme extension in Project Properties.
 
 ![](screenshots/3-theme-extention.png "Create extension theme")  
 
-Теперь при переходе на экран `ProductBrowse` каждый раз пользователь будет видеть тур. Также у него будет возможность 
-запускать тур нажатием на кнопку с заголовком "Tutorial". При переходе на `ProductEdit` будет запущен тур при первом 
-переходе на экран для каждого пользователя.
+Now, when the user opens the `ProductBrowse` screen, each time they will see the tour. Moreover, they will be able to start the tour by clicking the "Tutorial" button. As for `ProductEdit` screen, the tour will start only at the first screen opening for each user.
 
 This is how the `ProductBrowse` screen looks in the running app:
 
 ![](screenshots/4-run-application-product-browse.png "View of the ProductBrowse screen in the running app")
 
-Так выглядит `ProductBrowse` screen с шагом, привязанным к компоненту:
+This is how the `ProductBrowse` screen looks with the step bound to the component:
 
 ![](screenshots/6-run-application-product-browse-2.png "View of the ProductBrowse screen in the running app")
 
@@ -374,6 +364,6 @@ This is how the `ProductEdit` screen looks in the running app:
 
 ![](screenshots/5-run-application-product-edit.png "View of the ProductEdit screen in the running app")
 
-Так выглядит `ProductEdit` screen с шагом, привязанным к компоненту:
+This is how the `ProductEdit` screen looks with the step bound to the component:
 
 ![](screenshots/7-run-application-product-edit-2.png "View of the ProductEdit screen in the running app")
