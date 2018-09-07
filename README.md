@@ -3,7 +3,7 @@ This add-on is designed to create **product tour** for screens in the projects b
 [CUBA platform](https://www.cuba-platform.com).
 
 ### Main features
-The following components are used to create and tun tours:
+The following components are used to create and run tours:
 - **Tour** (A tour consisting of one or multiple steps)
 - **Step** (A single step of a tour)
 - **StepButton** (A button of a step that can be used to provide different actions if clicked)
