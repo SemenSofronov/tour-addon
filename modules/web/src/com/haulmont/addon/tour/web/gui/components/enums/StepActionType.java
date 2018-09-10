@@ -1,4 +1,7 @@
-package com.haulmont.addon.tour.web.gui.components;
+package com.haulmont.addon.tour.web.gui.components.enums;
+
+import com.haulmont.addon.tour.web.gui.components.Step;
+import com.haulmont.addon.tour.web.gui.components.events.StepProvider;
 
 import javax.annotation.Nullable;
 import java.util.Optional;

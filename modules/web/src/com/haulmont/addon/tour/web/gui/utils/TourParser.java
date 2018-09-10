@@ -8,6 +8,8 @@ package com.haulmont.addon.tour.web.gui.utils;
 
 import com.google.gson.Gson;
 import com.haulmont.addon.tour.web.gui.components.*;
+import com.haulmont.addon.tour.web.gui.components.enums.*;
+import com.haulmont.addon.tour.web.gui.components.events.step_button_events.ClickEvent;
 import com.haulmont.bali.util.Preconditions;
 import com.haulmont.cuba.core.global.Messages;
 import com.haulmont.cuba.gui.ComponentsHelper;
@@ -65,7 +67,7 @@ public class TourParser {
      * @return the tour
      */
     protected Tour createTour(Window windowToExtend) {
-        return new WebTour(windowToExtend);
+        return new Tour(windowToExtend);
     }
 
     /**
@@ -170,7 +172,7 @@ public class TourParser {
             caption = buttonMap.get("caption");
             caption = loadResourceString(caption);
         }
-        return new WebStepButton(caption);
+        return new StepButton(caption);
     }
 
     /**
@@ -183,7 +185,7 @@ public class TourParser {
         if (StringUtils.isNotEmpty(buttonMap.get("action"))) {
             String action = buttonMap.get("action");
 
-            Consumer<StepButton.ClickEvent> clickListener = getClickListener(action);
+            Consumer<ClickEvent> clickListener = getClickListener(action);
             if (clickListener == null) {
                 throw new GuiDevelopmentException("Couldn't parse the action value!", windowToExtend.getFrame().getId());
             }
@@ -230,7 +232,7 @@ public class TourParser {
         if (StringUtils.isNotEmpty((String) stepMap.get("id"))) {
             id = (String) stepMap.get("id");
         }
-        return new WebStep(id);
+        return new Step(id);
     }
 
     /**
@@ -262,7 +264,7 @@ public class TourParser {
     protected void loadStepAnchor(Map<String, Object> stepMap, Step step) {
         if (StringUtils.isNotEmpty((String) stepMap.get("anchor"))) {
             String anchor = (String) stepMap.get("anchor");
-            Step.StepAnchor stepAnchor = Step.StepAnchor.fromId(anchor);
+            StepAnchor stepAnchor = StepAnchor.fromId(anchor);
 
             if (stepAnchor == null) {
                 throw new GuiDevelopmentException("Couldn't parse the anchor value!",
@@ -282,7 +284,7 @@ public class TourParser {
     protected void loadTitleContentMode(Map<String, Object> stepMap, Step step) {
         if (StringUtils.isNotEmpty((String) stepMap.get("titleContentMode"))) {
             String titleContentMode = (String) stepMap.get("titleContentMode");
-            Step.ContentMode contentMode = Step.ContentMode.fromId(titleContentMode);
+            ContentMode contentMode = ContentMode.fromId(titleContentMode);
 
             if (contentMode == null) {
                 throw new GuiDevelopmentException("Couldn't parse the titleContentMode value!",
@@ -302,7 +304,7 @@ public class TourParser {
     protected void loadTextContentMode(Map<String, Object> stepMap, Step step) {
         if (StringUtils.isNotEmpty((String) stepMap.get("textContentMode"))) {
             String textContentMode = (String) stepMap.get("textContentMode");
-            Step.ContentMode contentMode = Step.ContentMode.fromId(textContentMode);
+            ContentMode contentMode = ContentMode.fromId(textContentMode);
 
             if (contentMode == null) {
                 throw new GuiDevelopmentException("Couldn't parse the textContentMode value!",
@@ -446,7 +448,7 @@ public class TourParser {
      * @return the click listener
      */
     @Nullable
-    protected Consumer<StepButton.ClickEvent> getClickListener(String action) {
+    protected Consumer<ClickEvent> getClickListener(String action) {
         String[] split = action.split(":");
 
         if (split.length == 2) {

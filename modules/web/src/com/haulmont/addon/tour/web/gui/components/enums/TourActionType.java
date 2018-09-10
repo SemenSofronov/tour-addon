@@ -3,7 +3,10 @@
  * Use is subject to license terms, see http://www.cuba-platform.com/commercial-software-license for details.
  */
 
-package com.haulmont.addon.tour.web.gui.components;
+package com.haulmont.addon.tour.web.gui.components.enums;
+
+import com.haulmont.addon.tour.web.gui.components.Tour;
+import com.haulmont.addon.tour.web.gui.components.events.TourProvider;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
